@@ -1,6 +1,8 @@
 # FastAPI-MongoDB example
 An extensive python FastAPI example using MongoDB
 
+https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part1-ceff58e16f94
+
 ## Author: Anders Wiklund
 
 This code repository is an extensive FAstAPI example of a RESTful API using MongoDB. 
@@ -16,7 +18,7 @@ contains all the code you need to follow along with the examples for the corresp
 
 ### Here's a brief outline of the article parts
 
-#### Part 1: A basic RESTful API
+#### [Part 1: A basic RESTful API](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part1-ceff58e16f94)
 It explains the absolute basic part of the API. It is using a dictionary as a DB just to show the concepts 
 without too much clutter that takes away focus from what is important. RESTful best practices have been 
 followed when naming endpoints and returning the proper status codes.
