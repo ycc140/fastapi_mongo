@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Copyright: Wilde Consulting
-  License: MIT
+  License: Apache 2.0
 
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-21 18:00:32
-     $Rev: 24
+    $Date: 2023-02-23 21:12:28
+     $Rev: 34
 """
 
 # BUILTIN modules
