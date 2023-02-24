@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 14:23:17
-     $Rev: 37
+    $Date: 2023-02-24 19:51:37
+     $Rev: 38
 """
 
 query_example = {
@@ -19,27 +19,27 @@ query_example = {
     },
     "selection": [
         {
-            "name": "Hammer",
-            "price": 9.99,
-            "category": "tools",
             "count": 20,
-            "id": "dbb86c27-2eed-410d-881e-ad47487dd228"
+            "price": 9.99,
+            "name": "Hammer",
+            "category": "tools",
+            "od": "dbb86c27-2eed-410d-881e-ad47487dd228"
         },
         {
-            "name": "Pliers",
-            "price": 5.99,
-            "category": "tools",
-            "count": 50,
-            "id": "32c1383a-b79e-43c1-8313-c8704382c48a"
+            "count": 100,
+            "price": 1.99,
+            "name": "Nails",
+            "category": "consumables",
+            "id": "3c65943f6-a376-4265-98bb-5b13ed6a54c8"
         }
     ]
 }
 
 item_example = {
-    "name": "Pliers",
-    "price": 5.99,
-    "category": "tools",
     "count": 50,
+    "price": 5.99,
+    "name": "Pliers",
+    "category": "tools",
     "id": "32c1383a-b79e-43c1-8313-c8704382c48a"
 }
 
@@ -51,6 +51,7 @@ license_info = {
 tags_metadata = [
     {
         "name": "items",
-        "description": "Manage the lifecycle of order items.",
+        "description": "Manage the lifecycle of the item "
+                       "stock and their base price in Euro.",
     },
 ]
