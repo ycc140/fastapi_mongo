@@ -27,8 +27,8 @@ followed when naming endpoints and returning the proper status codes.
 This part show how to expand the Swagger documentation within the code.
 
 #### Part 3: How to handle configuration data
-This part adds configuration handling using the Pydantic **BaseSettings** class. Passwords and other 
-secret values are stored as environment values in the OS. 
+This part adds initial configuration handling using the Pydantic **BaseSettings** class. Project parameters in an .env file. Later on when we add databaswe 
+support and Authentication passwords we will use Pydantic secrets files. In part9 we will integrate Docker secrets with Pydantic secrets.
 
 #### Part 4: Normalized log handling
 This part adds normalized log handling with color using the third party **Loguru** package.
