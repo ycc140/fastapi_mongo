@@ -23,7 +23,7 @@ It explains the absolute basic part of the API. It is using a dictionary as a DB
 without too much clutter that takes away focus from what is important. RESTful best practices have been 
 followed when naming endpoints and returning the proper status codes.
 
-#### Part 2: Extending the OpenAPI documentation in the code
+#### [Part 2: Extending the OpenAPI documentation in the code](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part2-22fc3255ea97)
 This part show how to expand the Swagger documentation within the code.
 
 #### Part 3: How to handle configuration data
