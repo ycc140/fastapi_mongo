@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 19:51:37
-     $Rev: 38
+    $Date: 2023-02-24 20:27:01
+     $Rev: 39
 """
 
 # BUILTIN modules
@@ -112,8 +112,6 @@ def query_item_by_parameters(
 
 
 # ---------------------------------------------------------
-# The 'responses' keyword allows you to specify which responses a user can expect from this endpoint.
-# The Query and Path classes also allow us to add documentation to query and path parameters.
 #
 @ROUTER.put(
     "/{item_id}",
