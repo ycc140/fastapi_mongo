@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 11:23:59
-     $Rev: 35
+    $Date: 2023-02-24 14:23:17
+     $Rev: 37
 """
 
 # BUILTIN modules
@@ -21,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from .api import ROUTER
 from .apidocs.openapi_documentation import license_info, tags_metadata
 
+# Constants
 DOC_PATH = Path(__file__).parent / 'apidocs'
 """ OpenAPI documentation root path. """
 
