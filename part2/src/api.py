@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 11:23:59
-     $Rev: 35
+    $Date: 2023-02-24 19:51:37
+     $Rev: 38
 """
 
 # BUILTIN modules
@@ -36,10 +36,7 @@ ROUTER = APIRouter(prefix="/items", tags=["items"])
     responses={409: {"model": AlreadyExistError}},
 )
 def add_item(payload: ItemSchema) -> ItemSchema:
-    """ Add Item to DB.
-
-    :raises HTTPException 409: When Item already exists in DB.
-    """
+    """ ***Add Item to DB.*** """
 
     if payload.id not in items:
         errmsg = f"Item with id='{payload.id}' already exists in DB"
@@ -57,7 +54,7 @@ def add_item(payload: ItemSchema) -> ItemSchema:
     response_model=List[ItemSchema]
 )
 def get_all_items() -> List[ItemSchema]:
-    """ Get all items from DB. """
+    """ ***Read all Items from DB.*** """
 
     return list(items.values())
 
@@ -70,10 +67,7 @@ def get_all_items() -> List[ItemSchema]:
     responses={404: {"model": NotFoundError}},
 )
 def query_item_by_id(item_id: UUID4) -> ItemSchema:
-    """ Extract Item for matching key from DB.
-
-    :raises HTTPException 404: When Item is not found in DB.
-    """
+    """ ***Read Item for matching item_id from DB.*** """
 
     if item_id not in items:
         errmsg = f"{item_id=} not found in DB"
@@ -95,13 +89,10 @@ def query_item_by_parameters(
         price: float | None = None,
         category: Category | None = None,
 ) -> ItemArgumentResponse:
-    """ Query item(s) using URL parameters.
-
-    :raises HTTPException 400: When no values provided for Item query.
-    """
+    """ ***Read item(s) using URL query parameters.*** """
 
     def match(item: ItemSchema):
-        """ Check if the item matches the query arguments from the outer scope. """
+        """ Return all parameters match status with outer scope Item. """
 
         return all(
             (
@@ -156,11 +147,7 @@ def update_item(
             description="New price of the item in Euro",
         ),
 ) -> ItemSchema:
-    """ Update specified item in DB.
-
-    :raises HTTPException 404: When Item not found in DB.<br>
-    :raises HTTPException 400: When no URL query parameters are provided.
-    """
+    """ ***Update Item for matching item_id in DB.*** """
 
     if all(info is None for info in (name, price, count)):
         errmsg = "No parameters provided for Item update"
@@ -191,10 +178,7 @@ def update_item(
     response_description='Item was successfully deleted'
 )
 async def delete_item(item_id: UUID4):
-    """ Delete Item for matching key from DB.
-
-    :raises HTTPException 404: When Item not found in DB.
-    """
+    """ ***Delete Item for matching item_id from DB.*** """
 
     if item_id not in items:
         raise HTTPException(status_code=404, detail=f"{item_id=} not found in DB")
