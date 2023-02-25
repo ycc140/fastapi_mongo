@@ -26,7 +26,7 @@ followed when naming endpoints and returning the proper status codes.
 #### [Part 2: Extending the OpenAPI documentation in the code](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part2-22fc3255ea97)
 This part show how to expand the Swagger documentation within the code.
 
-#### Part 3: How to handle configuration data
+#### [Part 3: How to handle configuration data](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part3-b6d1a7d97692)
 This part adds initial configuration handling using the Pydantic **BaseSettings** class. Project parameters in an .env file. Later on when we add databaswe 
 support and Authentication passwords we will use Pydantic secrets files. In part9 we will integrate Docker secrets with Pydantic secrets.
 
