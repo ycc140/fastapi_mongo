@@ -30,7 +30,7 @@ This part show how to expand the Swagger documentation within the code.
 This part adds initial configuration handling using the Pydantic **BaseSettings** class. Project parameters in an .env file. Later on when we add databaswe 
 support and Authentication passwords we will use Pydantic secrets files. In part9 we will integrate Docker secrets with Pydantic secrets.
 
-#### Part 4: Normalized log handling
+#### [Part 4: Normalized log handling](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part4-8fa4572bbc0)
 This part adds normalized log handling with color using the third party **Loguru** package.
 
 #### Part 5: How to use MongoDB with FastAPI
