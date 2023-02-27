@@ -6,13 +6,11 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 15:38:13
-     $Rev: 46
+    $Date: 2023-02-27 22:34:07
+     $Rev: 48
 """
 
-
 # BUILTIN modules
-import shutil
 import argparse
 
 # Third party modules
@@ -67,10 +65,7 @@ if __name__ == '__main__':
                         help="Activate reload")
     args = parser.parse_args()
 
-    # Make sure the log config file is where it's needed.
-    shutil.copy('../logging_config_dev.json',
-                './src/config/logging_config.json')
-
+    # Define default parameters that are used by all.
     uv_config = {'app': 'src.main:app', 'log_level': log_level}
 
     # Add the parameters that reload needs.
