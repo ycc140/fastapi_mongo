@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 22:34:07
-     $Rev: 48
+    $Date: 2023-02-27 23:11:36
+     $Rev: 49
 """
 
 # BUILTIN modules
@@ -40,7 +40,7 @@ def found_log_modules() -> Iterable:
 
 # ---------------------------------------------------------
 #
-def color_formatter(record: dict) -> str:
+def _color_formatter(record: dict) -> str:
     """ Return colored logging format string.
 
     @param record: Logging record.
@@ -69,18 +69,18 @@ class CustomizeLogger:
         :return: Loglevel and customized logger object.
         """
 
-        config = cls.load_logging_config(config_file)
+        config = cls._load_logging_config(config_file)
         logging_config = config.get('logger')
 
         return (logging_config.get('level'),
-                cls.customize_logging(
+                cls._customize_logging(
                     level=logging_config.get('level'),
                     diagnose=logging_config.get('diagnose')))
 
     # ---------------------------------------------------------
     #
     @classmethod
-    def customize_logging(cls, level: str, diagnose: bool) -> logger:
+    def _customize_logging(cls, level: str, diagnose: bool) -> logger:
         """ Return customized logger object.
 
         :param level: Logging level.
@@ -92,7 +92,7 @@ class CustomizeLogger:
         logger.remove()
 
         # Create a basic Loguru logging config.
-        conf = {"handlers": [{"format": color_formatter, "backtrace": True,
+        conf = {"handlers": [{"format": _color_formatter, "backtrace": True,
                               "diagnose": diagnose, "level": level.upper(),
                               "sink": sys.stderr, "colorize": True}]}
         logger.configure(**conf)
@@ -114,7 +114,7 @@ class CustomizeLogger:
     # ---------------------------------------------------------
     #
     @classmethod
-    def load_logging_config(cls, config_file: Path) -> dict:
+    def _load_logging_config(cls, config_file: Path) -> dict:
         """ load logging configuration file.
 
         :param config_file: Logging config file.
