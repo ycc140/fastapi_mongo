@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 19:51:37
-     $Rev: 38
+    $Date: 2023-02-27 12:24:28
+     $Rev: 45
 """
 
 # BUILTIN modules
@@ -24,7 +24,7 @@ from .schemas import (Category, ItemSchema, QueryArguments, ItemArgumentResponse
                       AlreadyExistError, NotFoundError, NoArgumentsError)
 
 # Constants
-ROUTER = APIRouter(prefix="/items", tags=["items"])
+ROUTER = APIRouter(prefix="/v1/items", tags=["items"])
 
 
 # ---------------------------------------------------------
@@ -103,8 +103,10 @@ def query_item_by_parameters(
             )
         )
 
+    # Verify that at least one of the query parameters have a value since
+    # we don't want to extract all Items, get_all_items() already does that.
     if all(info is None for info in (name, price, count, category)):
-        errmsg = "No parameters provided for Item query"
+        errmsg = "No query values provided in query URL"
         raise HTTPException(status_code=400, detail=errmsg)
 
     matching_items = [item for item in items.values() if match(item)]
@@ -150,7 +152,7 @@ def update_item(
     """ ***Update Item for matching item_id in DB.*** """
 
     if all(info is None for info in (name, price, count)):
-        errmsg = "No parameters provided for Item update"
+        errmsg = "No query values provided in update URL"
         raise HTTPException(status_code=400, detail=errmsg)
 
     if item_id not in items:
