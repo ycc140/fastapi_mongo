@@ -6,13 +6,14 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 15:38:13
-     $Rev: 46
+    $Date: 2023-02-27 22:34:07
+     $Rev: 48
 """
 
 # BUILTIN modules
 import sys
 import json
+import shutil
 import logging
 from pathlib import Path
 from typing import Callable, Tuple, Iterable
@@ -119,6 +120,13 @@ class CustomizeLogger:
         :param config_file: Logging config file.
         :return: Logging config file content.
         """
+
+        # Copy the file if it does not already exist. When running
+        # inside Docker, skip it (Docker handles that on its own).
+        if not Path('/.dockerenv').exists():
+            cwd = Path(__file__).parent
+            log_file = cwd.parent.parent / 'logging_config_dev.json'
+            shutil.copy(log_file, cwd / 'config/logging_config.json')
 
         with open(config_file) as hdl:
             config = json.load(hdl)
