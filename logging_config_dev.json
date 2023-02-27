@@ -1,0 +1,6 @@
+{
+  "logger": {
+    "level": "trace",
+    "diagnose": true
+  }
+}
