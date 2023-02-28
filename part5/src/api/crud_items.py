@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-28 14:41:15
-     $Rev: 51
+    $Date: 2023-02-28 19:26:05
+     $Rev: 52
 """
 
 # BUILTIN modules
@@ -18,7 +18,7 @@ from pydantic import UUID4
 from pymongo.results import DeleteResult
 
 # Local modules
-from ..db import client
+from ..db import Engine
 from ..schemas import (ItemPayload, ItemSchema, QueryArguments)
 
 
@@ -55,7 +55,7 @@ async def create(payload: ItemSchema) -> bool:
     :return: DB create result.
     """
 
-    response = await client.db.items.insert_one(payload.to_mongo())
+    response = await Engine.db.items.insert_one(payload.to_mongo())
 
     return response.acknowledged
 
@@ -70,7 +70,7 @@ async def read_all() -> List[ItemSchema]:
 
     result = []
 
-    async for item in client.db.items.find({}):
+    async for item in Engine.db.items.find({}):
         result.append(ItemSchema.from_mongo(item))
 
     return result
@@ -85,7 +85,7 @@ async def read(key: UUID4) -> ItemSchema:
     :return: Found Item.
     """
 
-    response = await client.db.items.find_one({"_id": str(key)})
+    response = await Engine.db.items.find_one({"_id": str(key)})
 
     return ItemSchema.from_mongo(response)
 
@@ -101,7 +101,7 @@ async def query(arguments: QueryArguments) -> List[ItemSchema]:
 
     result = []
 
-    async for item in client.db.items.find({}):
+    async for item in Engine.db.items.find({}):
 
         if _match(item, arguments):
             result.append(ItemSchema.from_mongo(item))
@@ -120,7 +120,8 @@ async def update(payload: ItemSchema) -> bool:
 
     key = payload.id
     base = ItemPayload(**payload.dict())
-    response = await client.db.items.update_one({"_id": str(key)}, {"$set": {**base.dict()}})
+    response = await Engine.db.items.update_one({"_id": str(key)},
+                                                {"$set": {**base.dict()}})
 
     return response.raw_result['updatedExisting']
 
@@ -135,4 +136,4 @@ async def delete(key: UUID4) -> DeleteResult:
     :return: DB delete result.
     """
 
-    return await client.db.items.delete_one({"_id": str(key)})
+    return await Engine.db.items.delete_one({"_id": str(key)})

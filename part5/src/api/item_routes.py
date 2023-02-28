@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-28 14:41:15
-     $Rev: 51
+    $Date: 2023-02-28 19:26:05
+     $Rev: 52
 """
 
 # BUILTIN modules
@@ -93,7 +93,7 @@ async def query_item_by_id(item_id: UUID4) -> ItemSchema:
 @ROUTER.get(
     "/",
     response_model=ItemArgumentResponse,
-    responses={400: {"model": NoArgumentsError}},
+    responses={406: {"model": NoArgumentsError}},
 )
 async def query_item_by_parameters(
         name: str | None = None,
@@ -126,7 +126,8 @@ async def query_item_by_parameters(
     response_model=ItemSchema,
     responses={
         404: {"model": NotFoundError},
-        400: {"model": NoArgumentsError}},
+        406: {"model": NoArgumentsError},
+        400: {"model": DbOperationFailedError}}
 )
 async def update_item(
         item_id: UUID4 = Path(
@@ -155,6 +156,8 @@ async def update_item(
 ) -> ItemSchema:
     """ ***Update Item for matching item_id in api_db.items.*** """
 
+    # Verify that at least one of the query parameters have a value since
+    # we don't want to extract all Items, get_all_items() already does that.
     if all(info is None for info in (name, price, count)):
         errmsg = "No query values provided in update URL"
         raise HTTPException(status_code=400, detail=errmsg)
