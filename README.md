@@ -33,7 +33,7 @@ support and Authentication passwords we will use Pydantic secrets files. In part
 #### [Part 4: Normalized log handling](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part4-8fa4572bbc0)
 This part adds normalized log handling with color using the third party **Loguru** package.
 
-#### Part 5: How to use MongoDB with FastAPI
+#### [Part 5: How to use MongoDB with FastAPI](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part5-ba057abf97e5)
 This part adds the usage of MongoDB. It also shows how to install MongoDB using Docker for local usage.
 
 #### Part 6: A health status endpoint
