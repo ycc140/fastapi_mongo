@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 21:43:21
-     $Rev: 47
+    $Date: 2023-02-28 19:26:05
+     $Rev: 52
 """
 
 # BUILTIN modules
@@ -19,10 +19,10 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 # Local modules
+from .db import Engine
 from .config.setup import config
 from .api.item_routes import ROUTER
 from .custom_logging import CustomizeLogger
-from .db import connect_to_mongo, close_mongo_connection
 from .apidocs.openapi_documentation import tags_metadata, license_info
 
 # Constants
@@ -85,7 +85,7 @@ app.include_router(ROUTER)
 async def create_db_client():
     """ Initialize DB connection. """
 
-    await connect_to_mongo()
+    await Engine.connect_to_mongo()
 
 
 # ---------------------------------------------------------
@@ -94,4 +94,4 @@ async def create_db_client():
 async def shutdown_db_client():
     """ Close DB connection. """
 
-    await close_mongo_connection()
+    await Engine.close_mongo_connection()

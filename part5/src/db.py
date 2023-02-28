@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2023-02-28 19:26:05
+     $Rev: 52
 """
 
 # Third party modules
@@ -32,27 +32,19 @@ class Engine:
     db: AsyncIOMotorDatabase = None
     connection: AsyncIOMotorClient = None
 
+    # ---------------------------------------------------------
+    #
+    @classmethod
+    async def connect_to_mongo(cls):
+        """ Initialize DB connection to MongoDb and database. """
 
-# ---------------------------------------------------------
+        cls.connection = AsyncIOMotorClient(config.mongo_url)
+        cls.db = cls.connection.api_db
 
-client = Engine()
-""" Global instance of MongoDb engine. """
-connection_url = f'{config.mongo_url}'
-""" Async connection URL. """
+    # ---------------------------------------------------------
+    #
+    @classmethod
+    async def close_mongo_connection(cls):
+        """ Close DB connection. """
 
-
-# ---------------------------------------------------------
-#
-async def connect_to_mongo():
-    """ Initialize DB connection to MongoDb and database. """
-
-    client.connection = AsyncIOMotorClient(connection_url)
-    client.db = client.connection.api_db
-
-
-# ---------------------------------------------------------
-#
-async def close_mongo_connection():
-    """ Close DB connection. """
-
-    client.connection.close()
+        cls.connection.close()

@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 21:43:21
-     $Rev: 47
+    $Date: 2023-02-28 19:26:05
+     $Rev: 52
 """
 
 # BUILTIN modules
@@ -35,12 +35,12 @@ class NotFoundError(BaseModel):
 
 
 class NoArgumentsError(BaseModel):
-    """ Define model for a http 400 exception (Unprocessable Entity). """
+    """ Define model for a http 406 exception (Not Acceptable). """
     detail: str = "No query arguments provided in URL"
 
 
 class DbOperationFailedError(BaseModel):
-    """ Define model for a http 400 exception (Unprocessable Entity). """
+    """ Define model for a http 400 exception (Bad Request). """
     detail: str = "DB operation failed"
 
 
