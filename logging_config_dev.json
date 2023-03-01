@@ -1,6 +1,8 @@
 {
   "logger": {
     "level": "trace",
-    "diagnose": true
+    "colorize": true,
+    "diagnose": true,
+    "format": "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {module}:{function}:{line} - {message}</level>"
   }
 }
