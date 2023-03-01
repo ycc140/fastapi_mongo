@@ -36,7 +36,7 @@ This part adds normalized log handling with color using the third party **Loguru
 #### [Part 5: How to use MongoDB with FastAPI](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part5-ba057abf97e5)
 This part adds the usage of MongoDB. It also shows how to install MongoDB using Docker for local usage.
 
-#### {Part 6: A health status endpoint](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part6-c88f40846684)
+#### [Part 6: A health status endpoint](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part6-c88f40846684)
 This part adds health status handling. It displays MongoDB connection status. In this part the project 
 desciption is moved into a separate file so that the Markdown functionality can be used.
 
