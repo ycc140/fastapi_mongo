@@ -48,7 +48,7 @@ Code examples for this book can be found in
 of YouTube [videos](https://www.youtube.com/@pinillos/videos) from the author that might be interesting to watch if 
 that is your _cup of tea_.
 
-#### Part 8: FastAPI Mock Testing
+#### [Part 8: FastAPI Mock Testing](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part8-6aa6647894cb)
 This part adds Mock testing of the API using the third party **pytest** package. The 
 "mocking" part is the MongoDB itself. This gives us much better control and makes it a lot
 easier to test, for example DB failures during create and update operations.
