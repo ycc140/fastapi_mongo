@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 23:11:36
-     $Rev: 49
+    $Date: 2023-03-01 13:42:12
+     $Rev: 57
 """
 
 # BUILTIN modules
@@ -22,11 +22,6 @@ from typing import Callable, Tuple, Iterable
 from loguru import logger
 from loguru_logging_intercept import (InterceptHandler)
 
-# Constants
-COLORS = {'trace': '<magenta>', 'debug': '<green>', 'info': '<white>',
-          'success': '<cyan>', 'warning': '<yellow>', 'error': '<red>', 'critical': '<RED><lw>'}
-""" Colors used in console logging. """
-
 
 # ---------------------------------------------------------
 #
@@ -36,22 +31,6 @@ def found_log_modules() -> Iterable:
     :return: List of found python logging modules.
     """
     return logging.root.manager.loggerDict.keys()
-
-
-# ---------------------------------------------------------
-#
-def _color_formatter(record: dict) -> str:
-    """ Return colored logging format string.
-
-    @param record: Logging record.
-    @return: Colored logging format.
-    """
-
-    level = record["level"].name.lower()
-    end = ('</></>' if level == 'critical' else '</>')
-    return f'{COLORS[level]}' + '{time:YYYY-MM-DD HH:mm:ss.SSS} | ' + \
-           f'{level.upper():<8}' + ' | {module}:{function}:{line} - ' \
-                                   '{message}' + f'{end}\n'
 
 
 # ------------------------------------------------------------------------
@@ -75,16 +54,21 @@ class CustomizeLogger:
         return (logging_config.get('level'),
                 cls._customize_logging(
                     level=logging_config.get('level'),
-                    diagnose=logging_config.get('diagnose')))
+                    diagnose=logging_config.get('diagnose'),
+                    colorize=logging_config.get('colorize'),
+                    log_format=logging_config.get('format')))
 
     # ---------------------------------------------------------
     #
     @classmethod
-    def _customize_logging(cls, level: str, diagnose: bool) -> logger:
+    def _customize_logging(cls, level: str, diagnose: bool,
+                           colorize: bool, log_format: str) -> logger:
         """ Return customized logger object.
 
         :param level: Logging level.
         :param diagnose: Diagnose status.
+        :param colorize: Coloring status.
+        :param log_format: Log format string.
         :return: customized logger object.
         """
 
@@ -92,10 +76,14 @@ class CustomizeLogger:
         logger.remove()
 
         # Create a basic Loguru logging config.
-        conf = {"handlers": [{"format": _color_formatter, "backtrace": True,
-                              "diagnose": diagnose, "level": level.upper(),
-                              "sink": sys.stderr, "colorize": True}]}
-        logger.configure(**conf)
+        logger.add(
+            sys.stderr,
+            enqueue=True,
+            backtrace=True,
+            format=log_format,
+            colorize=colorize,
+            diagnose=diagnose,
+            level=level.upper())
 
         # Prepare to incorporate python standard logging.
         seen = set()
