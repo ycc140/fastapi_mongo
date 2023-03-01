@@ -1,0 +1,41 @@
+#------------------------------------------------------------------------------
+# Copyright: Wilde Consulting
+#   License: Apache 2.0
+#
+# DESCRIPTION:
+#		uvicorn log configuration file.
+#
+# VERSION INFO:
+#      $Repo: fastapi_mongo
+#    $Author: Anders Wiklund
+#      $Date: 2023-03-01 19:25:11
+#       $Rev: 60
+#------------------------------------------------------------------------------
+
+version: 1
+disable_existing_loggers: False
+formatters:
+  default:
+    "()": uvicorn.logging.DefaultFormatter
+    datefmt: "%Y-%m-%dT%H:%M:%S"
+    format: "{asctime}.{msecs:03.0f} | {levelname: <8} | UVICORN.{module}:{funcName}:{lineno} - {message}"
+    use_colors: True
+    style: '{'
+handlers:
+  default:
+    formatter: default
+    class: logging.StreamHandler
+    stream: ext://sys.stderr
+  access:
+    formatter: default
+    class: logging.StreamHandler
+    stream: ext://sys.stdout
+loggers:
+  uvicorn.error:
+    handlers:
+      - default
+    propagate: False
+  uvicorn.access:
+    handlers:
+      - access
+    propagate: False
