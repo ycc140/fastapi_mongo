@@ -37,10 +37,9 @@ This part adds normalized log handling with color using the third party **Loguru
 This part adds the usage of MongoDB. It also shows how to install MongoDB using Docker for local usage.
 
 #### [Part 6: A health status endpoint](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part6-c88f40846684)
-This part adds health status handling. It displays MongoDB connection status. In this part the project 
-desciption is moved into a separate file so that the Markdown functionality can be used.
+This part adds health status handling. It displays MongoDB connection status. 
 
-#### Part 7: Basic Authentication
+#### [Part 7: HTTP Basic Authentication](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part7-166723102498)
 This part adds simple Basic Authentication handling. This type of Authentication should only be used in 
 a non-public API that is not exposed to Internet. A good explanation of this, and what type to use where 
 is described in an excellent book [Microservice APIs](https://www.manning.com/books/microservice-apis). 
