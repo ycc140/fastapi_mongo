@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Special for this project
+.pre-commit-repo.json
+uvicorn.json
+gunicorn.conf
+
