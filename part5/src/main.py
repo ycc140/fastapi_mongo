@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-28 19:26:05
-     $Rev: 52
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 # BUILTIN modules
@@ -20,8 +20,8 @@ from fastapi.staticfiles import StaticFiles
 
 # Local modules
 from .db import Engine
+from .api import item_routes
 from .config.setup import config
-from .api.item_routes import ROUTER
 from .custom_logging import CustomizeLogger
 from .apidocs.openapi_documentation import tags_metadata, license_info
 
@@ -63,8 +63,7 @@ def create_app() -> Tuple[FastAPI, str]:
     instance.mount("/static", StaticFiles(directory=static_path))
 
     # Create app structure.
-    log_config_file = ROOT_PATH / "config" / "logging_config.json"
-    level, custom_logger = CustomizeLogger.make_logger(log_config_file)
+    level, custom_logger = CustomizeLogger.make_logger()
     instance.logger = custom_logger
 
     return instance, level
@@ -76,7 +75,14 @@ def create_app() -> Tuple[FastAPI, str]:
 app, log_level = create_app()
 
 # Add created endpoints.
-app.include_router(ROUTER)
+app.include_router(item_routes.ROUTER)
+
+
+# ---------------------------------------------------------
+#
+@app.get("/")
+async def root_path():
+    return {"message": f'You are visiting: {config.name} v{config.version}'}
 
 
 # ---------------------------------------------------------

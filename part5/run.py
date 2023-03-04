@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-27 22:34:07
-     $Rev: 48
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 # BUILTIN modules
@@ -15,43 +15,9 @@ import argparse
 
 # Third party modules
 import uvicorn
-from loguru import logger
-from uvicorn.supervisors import Multiprocess, ChangeReload
-from loguru_logging_intercept import setup_loguru_logging_intercept
 
 # Local modules
 from src.main import log_level
-from src.custom_logging import logging, found_log_modules
-
-
-# ---------------------------------------------------------
-#
-def run_uvicorn(config: uvicorn.Config, force_exit: bool = False):
-    """ Same as uvicorn.run but injects loguru logging. """
-
-    server = uvicorn.Server(config=config)
-    server.force_exit = force_exit
-
-    # Trigger Loguru hijacking.
-    setup_loguru_logging_intercept(
-       modules=found_log_modules(),
-       level=logging.getLevelName(config.log_level.upper()))
-
-    if config.should_reload:
-
-        if config.workers > 1:
-            logger.warning('"workers" flag is ignored '
-                           'when reloading is enabled.')
-
-        sock = config.bind_socket()
-        ChangeReload(config, target=server.run, sockets=[sock]).run()
-
-    elif config.workers > 1:
-        sock = config.bind_socket()
-        Multiprocess(config, target=server.run, sockets=[sock]).run()
-
-    else:
-        server.run()
 
 
 # ---------------------------------------------------------
@@ -66,10 +32,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Define default parameters that are used by all.
-    uv_config = {'app': 'src.main:app', 'log_level': log_level}
+    uv_config = {'app': 'src.main:app', 'log_level': log_level,
+                 'log_config': {"disable_existing_loggers": False, "version": 1}}
 
     # Add the parameters that reload needs.
     if args.reload:
-        uv_config |= {'reload': True, 'log_config': 'src/config/uvicorn.yaml'}
+        uv_config |= {'reload': True}
 
-    run_uvicorn(uvicorn.Config(**uv_config))
+    uvicorn.run(**uv_config)
