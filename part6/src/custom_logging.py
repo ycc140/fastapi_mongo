@@ -6,31 +6,46 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-01 13:42:12
-     $Rev: 57
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 # BUILTIN modules
 import sys
 import json
-import shutil
 import logging
 from pathlib import Path
-from typing import Callable, Tuple, Iterable
+from types import FrameType
+from typing import Callable, Tuple, cast
 
 # Third party modules
 from loguru import logger
-from loguru_logging_intercept import (InterceptHandler)
 
 
 # ---------------------------------------------------------
 #
-def found_log_modules() -> Iterable:
-    """ Return list of found python logging modules.
+class InterceptHandler(logging.Handler):
+    """Logs to loguru from Python logging module"""
 
-    :return: List of found python logging modules.
-    """
-    return logging.root.manager.loggerDict.keys()
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            level = logger.level(record.levelname).name
+
+        except ValueError:
+            level = str(record.levelno)
+
+        frame, depth = logging.currentframe(), 2
+
+        while frame.f_code.co_filename == logging.__file__:
+            frame = cast(FrameType, frame.f_back)
+            depth += 1
+
+        logger.opt(
+            depth=depth,
+            exception=record.exc_info).log(
+            level,
+            record.getMessage()
+        )
 
 
 # ------------------------------------------------------------------------
@@ -41,14 +56,13 @@ class CustomizeLogger:
     # ---------------------------------------------------------
     #
     @classmethod
-    def make_logger(cls, config_file: Path) -> Tuple[str, Callable]:
+    def make_logger(cls) -> Tuple[str, Callable]:
         """ Make logger.
 
-        :param config_file: Logging config file.
         :return: Loglevel and customized logger object.
         """
 
-        config = cls._load_logging_config(config_file)
+        config = cls._load_logging_config()
         logging_config = config.get('logger')
 
         return (logging_config.get('level'),
@@ -89,7 +103,7 @@ class CustomizeLogger:
         seen = set()
         logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
-        for logger_name in found_log_modules():
+        for logger_name in logging.root.manager.loggerDict.keys():
 
             if logger_name not in seen:
                 seen.add(logger_name.split(".")[0])
@@ -102,19 +116,14 @@ class CustomizeLogger:
     # ---------------------------------------------------------
     #
     @classmethod
-    def _load_logging_config(cls, config_file: Path) -> dict:
+    def _load_logging_config(cls,) -> dict:
         """ load logging configuration file.
 
-        :param config_file: Logging config file.
         :return: Logging config file content.
         """
 
-        # Copy the file if it does not already exist. When running
-        # inside Docker, skip it (Docker handles that on its own).
-        if not Path('/.dockerenv').exists():
-            cwd = Path(__file__).parent
-            log_file = cwd.parent.parent / 'logging_config_dev.json'
-            shutil.copy(log_file, cwd / 'config/logging_config.json')
+        cwd = Path(__file__).parent
+        config_file = cwd.parent.parent / 'logging_config_dev.json'
 
         with open(config_file) as hdl:
             config = json.load(hdl)
