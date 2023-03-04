@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-26 15:50:47
-     $Rev: 43
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 # BUILTIN modules
@@ -62,8 +62,7 @@ def create_app() -> Tuple[FastAPI, str]:
     instance.mount("/static", StaticFiles(directory=static_path))
 
     # Create app structure.
-    log_config_file = ROOT_PATH / "config" / "logging_config.json"
-    level, custom_logger = CustomizeLogger.make_logger(log_config_file)
+    level, custom_logger = CustomizeLogger.make_logger()
     instance.logger = custom_logger
 
     return instance, level
@@ -76,3 +75,10 @@ app, log_level = create_app()
 
 # Add created endpoints.
 app.include_router(ROUTER)
+
+
+# ---------------------------------------------------------
+#
+@app.get("/")
+async def root_path():
+    return {"message": f'You are visiting: {config.name} v{config.version}'}
