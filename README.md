@@ -53,6 +53,6 @@ This part adds Mock testing of the API using the third party **pytest** package.
 "mocking" part is the MongoDB itself. This gives us much better control and makes it a lot
 easier to test, for example DB failures during create and update operations.
 
-#### Part 9: Docker container handling
+#### [Part 9: Docker container handling](https://medium.com/@wilde.consult/extensive-fastapi-with-mongodb-example-part9-b1cf673026b2)
 This part adds docker functionality with multiple environments using multi-build Dockerfile solution 
 to reduce container size.
