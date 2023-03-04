@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-01 18:04:03
-     $Rev: 59
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 query_example = {
@@ -49,6 +49,10 @@ license_info = {
 }
 
 tags_metadata = [
+    {
+        "name": "default",
+        "description": "Displays a welcome message.",
+    },
     {
         "name": "items",
         "description": "Manage the lifecycle of the item "

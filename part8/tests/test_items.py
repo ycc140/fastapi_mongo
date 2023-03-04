@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-01 23:44:25
-     $Rev: 61
+    $Date: 2023-03-02 00:01:30
+     $Rev: 62
 """
 
 # Third party modules
@@ -293,7 +293,7 @@ async def test_query_param_error(test_app, monkeypatch):
 # ---------------------------------------------------------
 #
 async def test_query_invalid_category_error(test_app, monkeypatch):
-    """ Test query a item document with invalid category parameter. """
+    """ Test query an item document with invalid category parameter. """
 
     request_response = [
         {'ctx': {'enum_values': ['tools', 'consumables']},
