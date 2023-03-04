@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-24 21:40:52
-     $Rev: 40
+    $Date: 2023-03-04 13:29:26
+     $Rev: 70
 """
 
 # BUILTIN modules
@@ -57,3 +57,10 @@ app.mount("/static", StaticFiles(directory=DOC_PATH))
 
 # Add used endpoints (and simplifying endpoint declarations).
 app.include_router(ROUTER)
+
+
+# ---------------------------------------------------------
+#
+@app.get("/")
+async def root_path():
+    return {"message": f'You are visiting: {config.name} v{config.version}'}

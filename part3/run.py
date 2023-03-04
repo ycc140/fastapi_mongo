@@ -11,9 +11,15 @@ VERSION INFO::
 """
 
 # Third party modules
-import uvicorn
+from uvicorn import run
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="127.0.0.1", port=8000,
-                log_level="info", reload=True, workers=1)
+
+    run(port=8000,
+        workers=1,
+        reload=True,
+        use_colors=True,
+        host="127.0.0.1",
+        log_level="trace",
+        app="src.main:app")
