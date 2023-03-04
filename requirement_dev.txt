@@ -2,14 +2,11 @@ fastapi[all]
 
 # part4
 loguru
-loguru-logging-intercept
 
 # part5
 motor
 
-# part7 (only for verify.py)
-requests
-
 # part8
 pytest
 pytest-env
+requests
