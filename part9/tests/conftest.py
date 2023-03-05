@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2023-03-05 11:05:26
+     $Rev: 72
 """
 
 # Third party modules
@@ -38,4 +38,5 @@ def anyio_backend():
 def test_app():
     """ Module fixture. """
 
-    yield TestClient(app)
+    with TestClient(app) as test_client:
+        yield test_client
