@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 16:30:10
+     $Rev: 5
 """
 
 # BUILTIN modules
@@ -28,7 +28,7 @@ from ..schemas import (Category, ItemPayload, ItemModel,
                        DbOperationFailedError, NotFoundError, NoArgumentError)
 
 # Constants
-ROUTER = APIRouter(prefix="/v1/items", tags=["items"])
+ROUTER = APIRouter(prefix="/v1/items", tags=["Items"])
 
 
 # ---------------------------------------------------------

@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:39:41
-     $Rev: 2
+    $Date: 2024-03-27 16:30:10
+     $Rev: 5
 """
 
 # BUILTIN modules
@@ -56,11 +56,6 @@ tags_metadata = [
         "name": "Items",
         "description": "Manage the lifecycle of the item "
                        "stock and their base price in Euro.",
-    },
-    {
-        "name": "Health endpoint",
-        "description": "A health check that return "
-                       "the MongoDB connection status.",
     }
 ]
 
