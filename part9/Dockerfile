@@ -2,7 +2,7 @@
 # -------------------------------------
 # first stage
 #
-FROM python:3.10-slim-bullseye as build
+FROM python:alpine AS build
 
 # set work directory
 WORKDIR /usr/src/app
@@ -10,14 +10,11 @@ WORKDIR /usr/src/app
 # Use argument parameter to build for test, stage or prod environment
 ARG BUILD_ENV
 
-# make sure all messages always reach console
-ENV PYTHONUNBUFFERED=1
-
-# don't generate byte code
-ENV PYTHONDONTWRITEBYTECODE=1
+# make sure all messages always reach console and don't generate byte code
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 
 # install system dependencies
-RUN apt-get -y update
+RUN apk upgrade
 
 # install python dependencies
 RUN pip install --upgrade pip setuptools wheel
@@ -27,7 +24,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 # -------------------------------------
 # second stage
 #
-FROM python:3.10-slim-bullseye
+FROM python:alpine AS final
 
 # Copy created wheels from build stage
 COPY --from=build /usr/src/app/wheels /wheels
@@ -37,10 +34,11 @@ ENV APP_HOME=/home/app TZ=Europe/Stockholm
 
 # create the app user and update system dependencies
 RUN set -eux; \
-    addgroup --system app; \
-    adduser --system --group app; \
-    # Upgrade the package index and install security upgrades \
-    apt-get -y update; \
+    addgroup -g 1000 app; \
+    adduser -u 1000 -G app app -D; \
+    # Upgrade the package index and install security upgrades
+    apk update; \
+    apk upgrade; \
     # Install dependencies \
     pip install --no-cache --upgrade pip; \
     pip install --no-cache /wheels/*; \
