@@ -1,8 +1,0 @@
-{
-  "logger": {
-    "level": "info",
-    "colorize": true,
-    "diagnose": false,
-    "format": "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {module}:{function}:{line} - {message}</level>"
-  }
-}

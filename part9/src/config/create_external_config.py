@@ -6,37 +6,34 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-04 13:29:26
-     $Rev: 70
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
 import os
 import json
-import argparse
 from pathlib import Path
 from configparser import ConfigParser
+
+# Local modules
+from setup import config
 
 # Constants.
 CWD = Path(__file__).parent
 """ Defines the current working directory. """
-ADJUSTED_LEVELS = {'TRACE': 'DEBUG', 'SUCCESS': 'INFO'}
-""" Adjusted log levels for gunicorn. """
 
 
 # ---------------------------------------------------------
 #
-def _create_uvicorn_file(log_config: dict):
+def _create_uvicorn_file():
     """ Create an uvicorn.json log configuration file.
 
     Create a new uvicorn log config file based upon the uvicorn template
     file, updated with the log level from the global log config file for
     all available loggers.
-
-    @param log_config: Global log config data.
     """
-
-    level = log_config['logger']['level'].upper()
+    level = config.log_level.upper()
 
     # Get uvicorn log template reference.
     with open(f"{CWD}/uvicorn.template") as hdl:
@@ -56,18 +53,16 @@ def _create_uvicorn_file(log_config: dict):
 
 # ---------------------------------------------------------
 #
-def _create_gunicorn_file(log_config: dict):
+def _create_gunicorn_file():
     """ Create a gunicorn.conf log configuration file.
 
     Create a new gunicorn log config file based upon the gunicorn template
     file, updated with the log level from the global log config file for
     all available loggers.
-
-    @param log_config: Global log config data.
     """
-
     ini_config = ConfigParser()
-    level = log_config['logger']['level'].upper()
+    level = config.log_level.upper()
+    adjusted_levels = {'TRACE': 'DEBUG', 'SUCCESS': 'INFO'}
 
     # Get gunicorn log template reference.
     ini_config.read(f"{CWD}/gunicorn.template")
@@ -78,7 +73,7 @@ def _create_gunicorn_file(log_config: dict):
         # gunicorn only accepts default python log levels, so we
         # need to handle the extra log levels that Loguru have defined.
         if section in ini_config:
-            ini_config.set(section, 'level', ADJUSTED_LEVELS.get(level, level))
+            ini_config.set(section, 'level', adjusted_levels.get(level, level))
 
     # Store updated gunicorn log configuration.
     with open(f'{CWD.parent.parent}/gunicorn.conf', 'w') as hdl:
@@ -87,7 +82,7 @@ def _create_gunicorn_file(log_config: dict):
 
 # ---------------------------------------------------------
 #
-def create_config_files(log_config: str):
+def create_config_files():
     """ Create uvicorn and gunicorn log configuration files.
 
     Create a new uvicorn log config file based upon the uvicorn template
@@ -95,32 +90,18 @@ def create_config_files(log_config: str):
 
     Create a new gunicorn log config file based upon the gunicorn template
     file, updated with the log level from the global log config file.
-
-    @param log_config: Name of log config file.
     """
-
-    # Look for environment variable that's only is defined in Docker.
+    # Look for environment variable that's only been defined in Docker.
     location = os.getenv('BUILD_ENV', 'dev')
 
-    # Get global log file configuration.
-    with open(f"{CWD.parent.parent}/{log_config}") as hdl:
-        config = json.load(hdl)
-
     if location == 'prod':
-        _create_gunicorn_file(config)
+        _create_gunicorn_file()
 
     else:
-        _create_uvicorn_file(config)
+        _create_uvicorn_file()
 
 
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
-
-    Form = argparse.ArgumentDefaultsHelpFormatter
-    description = 'A utility script that let you start the app choosing reload or not.'
-    parser = argparse.ArgumentParser(description=description, formatter_class=Form)
-    parser.add_argument("file", help="Specify log config file")
-    args = parser.parse_args()
-
-    create_config_files(args.file)
+    create_config_files()

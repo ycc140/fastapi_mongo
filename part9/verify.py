@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-02 22:00:59
-     $Rev: 63
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
@@ -15,23 +15,25 @@ import asyncio
 from pprint import pprint
 
 # Third party modules
-from httpx import ConnectError, ReadTimeout, BasicAuth, AsyncClient
+from httpx import ConnectError, ReadTimeout, AsyncClient
 
 # Local program modules
 from src.config.setup import config
 
 # Constants
-AUTH = BasicAuth(username=config.service_user, password=config.service_pwd)
+AUTH = {'Content-Type': 'application/json',
+        'X-API-Key': f'{config.service_api_key}'}
 
 
 # ---------------------------------------------------------
 #
 async def process(use_auth: bool = False):
+    """ Process requests. """
 
     async with AsyncClient() as client:
         response = await client.get(url='http://localhost:8000/v1/items',
-                                    headers={'Content-Type': 'application/json'},
-                                    timeout=(9.05, 60), auth=(AUTH if use_auth else None))
+                                    headers=(AUTH if use_auth else None),
+                                    timeout=(9.05, 60))
 
     if response.status_code == 200:
         print(f'\nTRUE =>')
@@ -60,5 +62,4 @@ async def test():
 # ---------------------------------------------------------
 
 if __name__ == "__main__":
-
     asyncio.run(test())

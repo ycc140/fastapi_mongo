@@ -3,16 +3,17 @@
 #   License: Apache 2.0
 #
 # DESCRIPTION:
-#		uvicorn log configuration file.
+#		Docker-compose local file.
 #
 # VERSION INFO:
 #      $Repo: fastapi_mongo
 #    $Author: Anders Wiklund
-#      $Date: 2023-03-04 20:12:53
-#       $Rev: 71
+#      $Date: 2024-03-27 05:38:56
+#       $Rev: 1
 #------------------------------------------------------------------------------
 
 version: '3.7'
+name: fastapi_mongo
 
 services:
 
@@ -22,24 +23,27 @@ services:
       args:
         BUILD_ENV: local
     container_name: fastapi_mongo_example
-    command: [uvicorn, --reload, --host=0.0.0.0, --port=7000,
-              --log-config=uvicorn.json, src.main:app]
+    command: [ uvicorn, --reload, --host=0.0.0.0, --port=7000,
+               --log-config=uvicorn.json, src.main:app ]
     volumes:
-      - ./part9/src/:/home/app/src/
+      - ./src/:/home/app/src/
     ports:
       - "8100:7000"
     secrets:
-      - mongo_url
-      - service_pwd
+      - mongo_url_local
+      - service_api_key
+    environment:
+      - ENVIRONMENT=local
     networks:
       - service_net
 
 secrets:
-    service_pwd:
-      file: C:/Users/ander/AppData/Roaming/Python/secrets/service_pwd
-    mongo_url:
-      file: C:/Users/ander/AppData/Roaming/Python/secrets/mongo_local_url
+  mongo_url_local:
+    file: C:/Users/ander/AppData/Roaming/Python/secrets/mongo_url_local
+  service_api_key:
+    file: C:/Users/ander/AppData/Roaming/Python/secrets/service_api_key
 
 networks:
   service_net:
+    external: true
     name: custom_network

@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-02 22:00:59
-     $Rev: 63
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # Third party modules
@@ -23,12 +23,11 @@ class Engine:
     """ MongoDb database async engine class.
 
 
-    :type db: C{motor.motor_asyncio.AsyncIOMotorDatabase}
     :ivar db: AsyncIOMotorDatabase class instance.
-    :type connection: C{motor.motor_asyncio.AsyncIOMotorClient}
+    :type db: motor.motor_asyncio.AsyncIOMotorDatabase
     :ivar connection: AsyncIOMotorClient class instance.
+    :type connection: motor.motor_asyncio.AsyncIOMotorClient
     """
-
     db: AsyncIOMotorDatabase = None
     connection: AsyncIOMotorClient = None
 
@@ -40,7 +39,6 @@ class Engine:
 
         Setting server connection timeout to 5 (default is 30) seconds.
         """
-
         cls.connection = AsyncIOMotorClient(config.mongo_url,
                                             serverSelectionTimeoutMS=5000)
         cls.db = cls.connection.api_db
@@ -50,5 +48,11 @@ class Engine:
     @classmethod
     async def close_mongo_connection(cls):
         """ Close DB connection. """
-
         cls.connection.close()
+
+    # ---------------------------------------------------------
+    #
+    @classmethod
+    async def is_db_connected(cls) -> bool:
+        """ Return MongoDB connection status. """
+        return bool(cls.connection.server_info())

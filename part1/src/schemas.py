@@ -6,31 +6,30 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
+from uuid import UUID
 from enum import Enum
 from typing import List, Optional
 
 # Third party modules
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel
 
 
 # -----------------------------------------------------------------------------
 #
 class Category(str, Enum):
     """ Category of an item. """
-
     TOOLS = "tools"
     CONSUMABLES = "consumables"
 
 
 class ItemSchema(BaseModel):
     """ Representation of an item in the system. """
-
-    id: UUID4
+    id: UUID
     name: str
     count: int
     price: float
@@ -41,7 +40,6 @@ class ItemSchema(BaseModel):
 #
 class QueryArguments(BaseModel):
     """ Representation of item query arguments in the system. """
-
     name: Optional[str] = None
     count: Optional[int] = None
     price: Optional[float] = None
@@ -50,6 +48,5 @@ class QueryArguments(BaseModel):
 
 class ItemArgumentResponse(BaseModel):
     """ Representation of an argument query response in the system. """
-
     query: QueryArguments
     selection: List[ItemSchema]

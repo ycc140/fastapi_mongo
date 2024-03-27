@@ -6,14 +6,13 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # Local modules
 from uuid import UUID
 from .schemas import Category, ItemSchema
-
 
 # In this version, fake MongoDB usage.
 #

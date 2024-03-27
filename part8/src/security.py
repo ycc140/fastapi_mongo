@@ -6,47 +6,33 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-01 19:25:11
-     $Rev: 60
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
-# BUILTIN modules
-import secrets
-
 # Third party modules
-from starlette.status import HTTP_401_UNAUTHORIZED
-
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import APIKeyHeader
+from fastapi import HTTPException, Security, status
 
 # local modules
 from .config.setup import config
 
 # Constants
-SECURITY = HTTPBasic()
-""" HTTP basic authentication object. """
+API_KEY_HEADER = APIKeyHeader(name="X-API-Key")
+""" Using API key authentication. """
 
 
 # ---------------------------------------------------------
 #
-def validate_authentication(credentials: HTTPBasicCredentials = Depends(SECURITY)):
-    """ Validate authentication.
+def validate_authentication(api_key: str = Security(API_KEY_HEADER)):
+    """ Validate API key authentication.
 
-    Security is based on HTTP Basic Auth.
-
-    This should only be used for the simplest cases. For example when you are
-    running in a network placed behind a firewall and there's no access from
-    Internet to the internal network.
-
-    :param credentials: Authentication credentials.
-    :raise HTTPException: 401 => When incorrect username or password is supplied.
+    :param api_key: Authentication credentials.
+    :raise HTTPException(401): When an incorrect API key is supplied.
     """
-
-    correct_password = secrets.compare_digest(credentials.password, config.service_pwd)
-    correct_username = secrets.compare_digest(credentials.username, config.service_user)
-
-    if not (correct_username and correct_password):
+    if api_key != config.service_api_key:
         raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"})
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API Key",
+            headers={"WWW-Authenticate": "X-API-Key"}
+        )

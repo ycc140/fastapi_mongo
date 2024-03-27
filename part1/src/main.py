@@ -6,19 +6,19 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # Third party modules
 from fastapi import FastAPI
 
 # Local modules
-from .api import ROUTER
+from . import api
 
 app = FastAPI(
-    version="0.1.0",
+    version="1.1.0",
     title="FastAPI-MongoDB Example")
 
 # Add used endpoints (and simplifying endpoint declarations).
-app.include_router(ROUTER)
+app.include_router(api.ROUTER)

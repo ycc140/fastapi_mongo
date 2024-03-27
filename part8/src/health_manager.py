@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-01 19:25:11
-     $Rev: 60
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
@@ -18,23 +18,44 @@ from loguru import logger
 
 # local modules
 from .db import Engine
-from .schemas import ResourceModel
+from .config.setup import config
+from .schemas import HealthResourceModel, HealthResponseModel
 
 
-# ---------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
-async def get_mongo_status() -> List[ResourceModel]:
-    """ Return MongoDb connection status.
+class HealthManager:
+    """ This class handles health status reporting on used resources. """
 
-    :return: MongoDb connection status.
-    """
+    # ---------------------------------------------------------
+    #
+    @staticmethod
+    async def _get_mongo_status() -> List[HealthResourceModel]:
+        """ Return MongoDb connection status.
 
-    try:
-        await Engine.connection.server_info()
-        status = True
+        :return: MongoDb connection status.
+        """
+        try:
+            status = await Engine.is_db_connected()
 
-    except BaseException as why:
-        logger.critical(f'MongoDB: {why}')
-        status = False
+        except BaseException as why:
+            logger.critical(f'MongoDB: {why}')
+            status = False
 
-    return [ResourceModel(name='MongoDb', status=status)]
+        return [HealthResourceModel(name='MongoDb', status=status)]
+
+    # ---------------------------------------------------------
+    #
+    async def get_status(self) -> HealthResponseModel:
+        """ Return Health status for used resources.
+
+        :return: Service health status.
+        """
+        resource_items = []
+        resource_items += await self._get_mongo_status()
+        total_status = all(key.status for key in resource_items)
+
+        return HealthResponseModel(status=total_status,
+                                   version=config.version,
+                                   name=config.service_name,
+                                   resources=resource_items)

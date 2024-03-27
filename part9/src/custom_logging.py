@@ -6,28 +6,33 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-04 13:29:26
-     $Rev: 70
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
 import sys
-import json
 import logging
-from pathlib import Path
+from typing import cast
 from types import FrameType
-from typing import Callable, Tuple, cast
 
 # Third party modules
 from loguru import logger
+
+# local modules
+from .config.setup import config
 
 
 # ---------------------------------------------------------
 #
 class InterceptHandler(logging.Handler):
-    """Logs to loguru from Python logging module"""
+    """ Send logs to loguru logging from Python logging module. """
 
     def emit(self, record: logging.LogRecord):
+        """  Move the specified logging record to loguru.
+
+        :param record: Original python log record.
+        """
         try:
             level = logger.level(record.levelname).name
 
@@ -48,88 +53,40 @@ class InterceptHandler(logging.Handler):
         )
 
 
-# ------------------------------------------------------------------------
+# ---------------------------------------------------------
 #
-class CustomizeLogger:
-    """ Customize logger. """
+def create_unified_logger() -> logger:
+    """ Return unified Loguru logger object.
 
-    # ---------------------------------------------------------
-    #
-    @classmethod
-    def make_logger(cls) -> Tuple[str, Callable]:
-        """ Make logger.
+    :return: unified Loguru logger object.
+    """
 
-        :return: Loglevel and customized logger object.
-        """
+    level = config.log_level
 
-        config = cls._load_logging_config()
-        logging_config = config.get('logger')
+    # Remove all existing loggers.
+    logger.remove()
 
-        return (logging_config.get('level'),
-                cls._customize_logging(
-                    level=logging_config.get('level'),
-                    diagnose=logging_config.get('diagnose'),
-                    colorize=logging_config.get('colorize'),
-                    log_format=logging_config.get('format')))
+    # Create a basic Loguru logging config.
+    logger.add(
+        enqueue=True,
+        colorize=True,
+        backtrace=True,
+        sink=sys.stderr,
+        level=level.upper(),
+        format=config.log_format,
+        diagnose=config.log_diagnose,
+    )
 
-    # ---------------------------------------------------------
-    #
-    @classmethod
-    def _customize_logging(cls, level: str, diagnose: bool,
-                           colorize: bool, log_format: str) -> logger:
-        """ Return customized logger object.
+    # Prepare to incorporate python standard logging.
+    seen = set()
+    logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
-        :param level: Logging level.
-        :param diagnose: Diagnose status.
-        :param colorize: Coloring status.
-        :param log_format: Log format string.
-        :return: customized logger object.
-        """
+    for logger_name in logging.root.manager.loggerDict.keys():
 
-        # Remove all existing loggers.
-        logger.remove()
+        if logger_name not in seen:
+            seen.add(logger_name)
+            mod_logger = logging.getLogger(logger_name)
+            mod_logger.handlers = [InterceptHandler()]
+            mod_logger.propagate = False
 
-        # Create a basic Loguru logging config.
-        logger.add(
-            sys.stderr,
-            enqueue=True,
-            backtrace=True,
-            format=log_format,
-            colorize=colorize,
-            diagnose=diagnose,
-            level=level.upper())
-
-        # Prepare to incorporate python standard logging.
-        seen = set()
-        logging.basicConfig(handlers=[InterceptHandler()], level=0)
-
-        for logger_name in logging.root.manager.loggerDict.keys():
-
-            if logger_name not in seen:
-                seen.add(logger_name.split(".")[0])
-                mod_logger = logging.getLogger(logger_name)
-                mod_logger.handlers = [InterceptHandler(level=level.upper())]
-                mod_logger.propagate = False
-
-        return logger.bind(request_id=None, method=None)
-
-    # ---------------------------------------------------------
-    #
-    @classmethod
-    def _load_logging_config(cls,) -> dict:
-        """ load logging configuration file.
-
-        :return: Logging config file content.
-        """
-
-        cwd = Path(__file__).parent
-
-        # The file location and name differs when running in Docker.
-        config_file = (cwd.parent / 'logging_config.json'
-                       if Path('/.dockerenv').exists()
-                       else cwd.parent.parent / 'logging_config_dev.json')
-
-        with open(config_file) as hdl:
-            config = json.load(hdl)
-
-        return config
+    return logger.bind(request_id=None, method=None)

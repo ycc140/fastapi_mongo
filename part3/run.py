@@ -6,20 +6,33 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-23 21:12:28
-     $Rev: 34
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
+# BUILTIN modules
+import argparse
+from contextlib import suppress
+
 # Third party modules
-from uvicorn import run
+import uvicorn
 
+# ---------------------------------------------------------
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    Form = argparse.ArgumentDefaultsHelpFormatter
+    description = 'A utility script that let you start the app choosing reload or not.'
+    parser = argparse.ArgumentParser(description=description, formatter_class=Form)
+    parser.add_argument("-r", action="store_true", dest="reload", default=False,
+                        help="Activate reload")
+    args = parser.parse_args()
 
-    run(port=8000,
-        workers=1,
-        reload=True,
-        use_colors=True,
-        host="127.0.0.1",
-        log_level="trace",
-        app="src.main:app")
+    # Define default parameters that are used by all.
+    uv_config = {'app': 'src.main:app'}
+
+    # Add the parameters that reload needs.
+    if args.reload:
+        uv_config |= {'reload': True}
+
+    with suppress(KeyboardInterrupt):
+        uvicorn.run(**uv_config)

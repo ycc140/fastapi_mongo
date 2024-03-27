@@ -6,79 +6,71 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-04 13:29:26
-     $Rev: 70
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
+import json
 from pathlib import Path
-from typing import Tuple
 
 # Third party modules
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 # Local modules
-from .api import ROUTER
+from .api import item_routes
 from .config.setup import config
-from .custom_logging import CustomizeLogger
-from .apidocs.openapi_documentation import tags_metadata, license_info
-
-# Constants
-ROOT_PATH = Path(__file__).parent
-""" Root path for files. """
+from .custom_logging import create_unified_logger
+from .api.documentation import tags_metadata, license_info, description
 
 
 # ---------------------------------------------------------
 #
-def get_description() -> str:
-    """  Return content of description Markdown file.
+class Service(FastAPI):
+    """ This class extends the FastAPI class for the OrderService API.
 
-    :return: Markdown formatted description text.
+    The following functionality is added:
+      - unified logging.
+      - includes API router.
+      - Defines a static path for images in the documentation.
+
+    :ivar logger: Unified loguru logger object.
+    :type logger: loguru.logger
     """
 
-    with open(ROOT_PATH / 'apidocs' / 'description.md', 'r') as hdl:
-        md_text = hdl.read()
+    def __init__(self, *args: int, **kwargs: dict):
+        """ This class adds RabbitMQ message consumption and unified logging.
 
-    return md_text
+        :param args: Named arguments.
+        :param kwargs: Key-value pair arguments.
+        """
+        super().__init__(*args, **kwargs)
 
+        # Needed for OpenAPI Markdown images to be displayed.
+        static_path = Path(__file__).parent / 'static'
+        self.mount("/static", StaticFiles(directory=static_path))
 
-# ---------------------------------------------------------
-#
-def create_app() -> Tuple[FastAPI, str]:
-    """ Create FastAPI app structure and unified logging. """
+        # Add declared router information.
+        self.include_router(item_routes.ROUTER)
 
-    instance = FastAPI(
-        redoc_url=None,
-        title=config.name,
-        version=config.version,
-        license_info=license_info,
-        openapi_tags=tags_metadata,
-        description=get_description()
-    )
-
-    # Needed for swagger Markdown images to be displayed.
-    static_path = ROOT_PATH / 'apidocs'
-    instance.mount("/static", StaticFiles(directory=static_path))
-
-    # Create app structure.
-    level, custom_logger = CustomizeLogger.make_logger()
-    instance.logger = custom_logger
-
-    return instance, level
+        # Unify logging within the imported package's closure.
+        self.logger = create_unified_logger()
 
 
 # ---------------------------------------------------------
 
-# Create the FastAPI application.
-app, log_level = create_app()
+app = Service(
+    redoc_url=None,
+    title=config.name,
+    version=config.version,
+    description=description,
+    license_info=license_info,
+    openapi_tags=tags_metadata,
+    # swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"}
+)
+""" The FastAPI application instance. """
 
-# Add created endpoints.
-app.include_router(ROUTER)
-
-
-# ---------------------------------------------------------
-#
-@app.get("/")
-async def root_path():
-    return {"message": f'You are visiting: {config.name} v{config.version}'}
+# Test log level and show Log config values for testing purposes.
+app.logger.debug(f'{config.name} v{config.version} has started...')
+app.logger.trace(f'config: {json.dumps(config.model_dump(), indent=2)}')

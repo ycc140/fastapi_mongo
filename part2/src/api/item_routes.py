@@ -6,22 +6,26 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-26 03:35:05
-     $Rev: 42
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # BUILTIN modules
+from uuid import UUID
 from typing import List
 
 # Third party modules
-from pydantic import UUID4
 from fastapi.responses import Response
-from fastapi import HTTPException, APIRouter, status, Query, Path
+from fastapi import HTTPException, APIRouter, status, Query
 
 # Local modules
-from .db import items
-from .schemas import (Category, ItemSchema, QueryArguments, ItemArgumentResponse,
-                      AlreadyExistError, NotFoundError, NoArgumentsError)
+from ..db import items
+from ..schemas import (Category, ItemPayload, ItemModel, QueryArguments,
+                       ItemArgumentResponse, DbOperationFailedError,
+                       NotFoundError, NoArgumentError)
+from .documentation import (item_id_documentation,
+                            get_query_documentation as get_query_doc,
+                            put_query_documentation as put_query_doc)
 
 # Constants
 ROUTER = APIRouter(prefix="/v1/items", tags=["items"])
@@ -31,29 +35,25 @@ ROUTER = APIRouter(prefix="/v1/items", tags=["items"])
 #
 @ROUTER.post(
     "",
-    response_model=ItemSchema,
+    response_model=ItemModel,
     status_code=status.HTTP_201_CREATED,
-    responses={409: {"model": AlreadyExistError}},
+    responses={400: {"model": DbOperationFailedError}},
 )
-def add_item(payload: ItemSchema) -> ItemSchema:
+def add_item(payload: ItemPayload) -> ItemModel:
     """ ***Add Item to DB.*** """
+    db_item = ItemModel(**payload.model_dump())
+    items[db_item.id] = db_item
 
-    if payload.id not in items:
-        errmsg = f"Item with id='{payload.id}' already exists in DB"
-        raise HTTPException(status_code=409, detail=errmsg)
-
-    items[payload.id] = payload
-
-    return payload
+    return db_item
 
 
 # ---------------------------------------------------------
 #
 @ROUTER.get(
     "",
-    response_model=List[ItemSchema]
+    response_model=List[ItemModel]
 )
-def get_all_items() -> List[ItemSchema]:
+def get_all_items() -> List[ItemModel]:
     """ ***Read all Items from DB.*** """
 
     return list(items.values())
@@ -63,10 +63,10 @@ def get_all_items() -> List[ItemSchema]:
 #
 @ROUTER.get(
     "/{item_id}",
-    response_model=ItemSchema,
+    response_model=ItemModel,
     responses={404: {"model": NotFoundError}},
 )
-def query_item_by_id(item_id: UUID4) -> ItemSchema:
+def query_item_by_id(item_id: UUID = item_id_documentation) -> ItemModel:
     """ ***Read Item for matching item_id from DB.*** """
 
     if item_id not in items:
@@ -81,30 +81,30 @@ def query_item_by_id(item_id: UUID4) -> ItemSchema:
 @ROUTER.get(
     "/",
     response_model=ItemArgumentResponse,
-    responses={400: {"model": NoArgumentsError}},
+    responses={400: {"model": NoArgumentError}},
 )
 def query_item_by_parameters(
-        name: str | None = None,
-        count: int | None = None,
-        price: float | None = None,
-        category: Category | None = None,
+        name: str = Query(**get_query_doc['name']),
+        count: int = Query(**get_query_doc['count']),
+        price: float = Query(**get_query_doc['price']),
+        category: Category = Query(**get_query_doc['category']),
 ) -> ItemArgumentResponse:
     """ ***Read item(s) using URL query parameters.*** """
 
-    def match(item: ItemSchema) -> bool:
+    def match(item: ItemModel) -> bool:
         """ Return all parameters match status with outer scope Item. """
 
         return all(
             (
-                name is None or item.name == name,
                 count is None or item.count == count,
                 price is None or item.price == price,
                 category is None or item.category is category,
+                name is None or item.name.lower() == name.lower(),
             )
         )
 
-    # Verify that at least one of the query parameters have a value since
-    # we don't want to extract all Items, get_all_items() already does that.
+    # Verify that at least one of the query parameters has a value since
+    # we don't want to extract all Items (get_all_items() already does that).
     if all(info is None for info in (name, price, count, category)):
         errmsg = "No query values provided in query URL"
         raise HTTPException(status_code=400, detail=errmsg)
@@ -119,38 +119,21 @@ def query_item_by_parameters(
 #
 @ROUTER.put(
     "/{item_id}",
-    response_model=ItemSchema,
+    response_model=ItemModel,
     responses={
         404: {"model": NotFoundError},
-        400: {"model": NoArgumentsError}}
+        400: {"model": NoArgumentError}}
 )
 def update_item(
-        item_id: UUID4 = Path(
-            title="Item ID",
-            description="Unique identifier that specifies an item",
-        ),
-        name: str | None = Query(
-            min_length=1,
-            max_length=8,
-            default=None,
-            title="Name",
-            description="New name of the item",
-        ),
-        count: int | None = Query(
-            ge=0,
-            default=None,
-            title="Count",
-            description="New amount of instances of this item in stock",
-        ),
-        price: float | None = Query(
-            gt=0.0,
-            default=None,
-            title="Price",
-            description="New price of the item in Euro",
-        ),
-) -> ItemSchema:
+        item_id: UUID = item_id_documentation,
+        name: str = Query(**put_query_doc['name']),
+        count: int = Query(**put_query_doc['count']),
+        price: float = Query(**put_query_doc['price']),
+) -> ItemModel:
     """ ***Update Item for matching item_id in DB.*** """
 
+    # Verify that at least one of the query parameters has
+    # a value; otherwise there's no need to do an update.
     if all(info is None for info in (name, price, count)):
         errmsg = "No query values provided in update URL"
         raise HTTPException(status_code=400, detail=errmsg)
@@ -179,7 +162,7 @@ def update_item(
     responses={404: {"model": NotFoundError}},
     response_description='Item was successfully deleted'
 )
-async def delete_item(item_id: UUID4):
+async def delete_item(item_id: UUID = item_id_documentation):
     """ ***Delete Item for matching item_id from DB.*** """
 
     if item_id not in items:

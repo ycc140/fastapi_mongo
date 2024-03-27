@@ -6,21 +6,16 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-05 11:05:26
-     $Rev: 72
+    $Date: 2024-03-27 05:38:56
+     $Rev: 1
 """
 
 # Third party modules
 import pytest
-from requests import auth
 from starlette.testclient import TestClient
 
 # Local program modules
 from ..src.main import app
-from ..src.config.setup import config
-
-# Constants
-pytest.AUTH = auth.HTTPBasicAuth(config.service_user, config.service_pwd)
 
 
 # ---------------------------------------------------------

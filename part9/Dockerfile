@@ -2,7 +2,7 @@
 # -------------------------------------
 # first stage
 #
-FROM python:3.10-slim-bullseye as build1
+FROM python:3.10-slim-bullseye as build
 
 # set work directory
 WORKDIR /usr/src/app
@@ -29,37 +29,37 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 #
 FROM python:3.10-slim-bullseye
 
-# create the app user
-RUN addgroup --system app && adduser --system --group app
+# Copy created wheels from build stage
+COPY --from=build /usr/src/app/wheels /wheels
 
-# create the appropriate directories
-ENV APP_HOME=/home/app
-RUN mkdir -p $APP_HOME
+# Define environment variables
+ENV APP_HOME=/home/app TZ=Europe/Stockholm
+
+# create the app user and update system dependencies
+RUN set -eux; \
+    addgroup --system app; \
+    adduser --system --group app; \
+    # Upgrade the package index and install security upgrades \
+    apt-get -y update; \
+    # Install dependencies \
+    pip install --no-cache --upgrade pip; \
+    pip install --no-cache /wheels/*; \
+    rm -rf /var/lib/apk/lists/*; \
+    rm -rf /wheels/*; \
+    # Set local timezone (needs to be done before changing user).
+    ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
 # set work directory
 WORKDIR $APP_HOME
 
+# copy project and chown all the files to the app user
+COPY --chown=app:app ./src $APP_HOME/src
+
 # Use argument parameter to build for test, stage or prod environment
 ARG BUILD_ENV
 
-# install system dependencies
-RUN apt-get -y update
-
-# Set local timezone (needs to be done befor changing user).
-ENV TZ=Europe/Stockholm
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# install python dependencies
-COPY --from=build1 /usr/src/app/wheels /wheels
-RUN pip install --no-cache --upgrade pip \
-    && pip install --no-cache /wheels/*
-
-# copy project and chown all the files to the app user
-COPY --chown=app:app part9/src $APP_HOME/src
-COPY --chown=app:app logging_config_${BUILD_ENV}.json $APP_HOME/logging_config.json
-
 # Update gunicorn and uvicorn log level based on master log file configuration and build env.
-RUN ["python", "src/config/create_external_config.py", "logging_config.json"]
+RUN ["python", "src/config/create_external_config.py"]
 
 # change to the app user
 USER app
