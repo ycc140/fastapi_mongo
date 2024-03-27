@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 15:22:03
+     $Rev: 4
 """
 
 # BUILTIN modules
@@ -20,7 +20,8 @@ from fastapi import HTTPException, APIRouter, status, Query
 
 # Local modules
 from .db import items
-from .schemas import (Category, ItemSchema, QueryArguments, ItemArgumentResponse)
+from .schemas import (Category, ItemPayload, ItemModel,
+                      QueryArguments, ItemArgumentResponse)
 
 # Constants
 ROUTER = APIRouter(prefix="/items")
@@ -30,28 +31,24 @@ ROUTER = APIRouter(prefix="/items")
 #
 @ROUTER.post(
     "",
-    response_model=ItemSchema,
+    response_model=ItemModel,
     status_code=status.HTTP_201_CREATED,
 )
-def add_item(payload: ItemSchema) -> ItemSchema:
+def add_item(payload: ItemPayload) -> ItemModel:
     """ ***Add Item to DB.*** """
+    db_item = ItemModel(**payload.model_dump())
+    items[db_item.id] = db_item
 
-    if payload.id not in items:
-        errmsg = f"Item with id='{payload.id}' already exists in DB"
-        raise HTTPException(status_code=409, detail=errmsg)
-
-    items[payload.id] = payload
-
-    return payload
+    return db_item
 
 
 # ---------------------------------------------------------
 #
 @ROUTER.get(
     "",
-    response_model=List[ItemSchema]
+    response_model=List[ItemModel]
 )
-def get_all_items() -> List[ItemSchema]:
+def get_all_items() -> List[ItemModel]:
     """ ***Read all Items from DB.*** """
     return list(items.values())
 
@@ -60,9 +57,9 @@ def get_all_items() -> List[ItemSchema]:
 #
 @ROUTER.get(
     "/{item_id}",
-    response_model=ItemSchema,
+    response_model=ItemModel,
 )
-def query_item_by_id(item_id: UUID) -> ItemSchema:
+def query_item_by_id(item_id: UUID) -> ItemModel:
     """ ***Read Item for matching item_id from DB.*** """
     if item_id not in items:
         errmsg = f"{item_id=} not found in DB"
@@ -85,7 +82,7 @@ def query_item_by_parameters(
 ) -> ItemArgumentResponse:
     """ ***Read item(s) using URL query parameters.*** """
 
-    def match(item: ItemSchema) -> bool:
+    def match(item: ItemModel) -> bool:
         """ Return all parameters match status with outer scope Item. """
         return all(
             (
@@ -112,14 +109,14 @@ def query_item_by_parameters(
 #
 @ROUTER.put(
     "/{item_id}",
-    response_model=ItemSchema,
+    response_model=ItemModel,
 )
 def update_item(
         item_id: UUID,
         name: str | None = Query(default=None),
         count: int | None = Query(default=None),
         price: float | None = Query(default=None),
-) -> ItemSchema:
+) -> ItemModel:
     """ ***Update Item for matching item_id in DB.*** """
     if all(info is None for info in (name, price, count)):
         errmsg = "No parameters provided for Item update"
