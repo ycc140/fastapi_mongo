@@ -6,9 +6,12 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 20:37:53
+     $Rev: 6
 """
+
+# BUILTIN modules
+from contextlib import suppress
 
 # Third party modules
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
@@ -47,12 +50,17 @@ class Engine:
     #
     @classmethod
     async def close_mongo_connection(cls):
-        """ Close DB connection. """
-        cls.connection.close()
+        """ Close DB connection.
+
+        Only try and close the connection when connected.
+        """
+        with suppress(BaseException):
+            if bool(await cls.connection.server_info()):
+                await cls.connection.close()
 
     # ---------------------------------------------------------
     #
     @classmethod
     async def is_db_connected(cls) -> bool:
         """ Return MongoDB connection status. """
-        return bool(cls.connection.server_info())
+        return bool(await cls.connection.server_info())
