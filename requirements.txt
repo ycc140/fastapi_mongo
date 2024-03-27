@@ -1,0 +1,15 @@
+fastapi==0.110.0
+pydantic-settings==2.2.1
+uuid7==0.1.0
+uvicorn[standard]==0.29.0
+
+# part4
+loguru==0.7.2
+
+# part5
+motor==3.3.2
+
+# part8
+pytest==8.1.1
+pytest-asyncio==0.23.5.post1
+pytest-env==1.1.3
