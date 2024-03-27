@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 22:22:01
+     $Rev: 7
 """
 
 # BUILTIN modules
@@ -27,13 +27,15 @@ AUTH = {'Content-Type': 'application/json',
 
 # ---------------------------------------------------------
 #
-async def process(use_auth: bool = False):
-    """ Process requests. """
+async def process(client: AsyncClient, use_auth: bool = False):
+    """ Process the http request.
 
-    async with AsyncClient() as client:
-        response = await client.get(url='http://localhost:8000/v1/items',
-                                    headers=(AUTH if use_auth else None),
-                                    timeout=(9.05, 60))
+    :param client: A httpx AsyncClient instance.
+    :param use_auth: Status for using authentication.
+    """
+    response = await client.get(url='http://localhost:8000/v1/items',
+                                headers=(AUTH if use_auth else None),
+                                timeout=(9.05, 60))
 
     if response.status_code == 200:
         print(f'\nTRUE =>')
@@ -46,9 +48,11 @@ async def process(use_auth: bool = False):
 # ---------------------------------------------------------
 #
 async def test():
+    """ Test http authentication. """
     try:
-        await process()
-        await process(use_auth=True)
+        async with AsyncClient() as client:
+            await process(client)
+            await process(client, use_auth=True)
 
     # You will end up here if you have not started the API server program (run.py).
     except ConnectError as why:

@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-02-28 19:26:05
-     $Rev: 52
+    $Date: 2024-03-27 22:22:01
+     $Rev: 7
 """
 
 # Third party modules
@@ -28,7 +28,6 @@ class Engine:
     :type connection: C{motor.motor_asyncio.AsyncIOMotorClient}
     :ivar connection: AsyncIOMotorClient class instance.
     """
-
     db: AsyncIOMotorDatabase = None
     connection: AsyncIOMotorClient = None
 
@@ -37,7 +36,6 @@ class Engine:
     @classmethod
     async def connect_to_mongo(cls):
         """ Initialize DB connection to MongoDb and database. """
-
         cls.connection = AsyncIOMotorClient(config.mongo_url)
         cls.db = cls.connection.api_db
 
@@ -46,5 +44,4 @@ class Engine:
     @classmethod
     async def close_mongo_connection(cls):
         """ Close DB connection. """
-
         cls.connection.close()

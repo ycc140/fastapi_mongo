@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 22:22:01
+     $Rev: 7
 """
 
 # BUILTIN modules
@@ -27,7 +27,7 @@ MISSING_ENV = '>>> missing ENV value <<<'
 MISSING_SECRET = '>>> missing SECRETS file <<<'
 """ Error message for missing secrets file. """
 SECRETS_DIR = f'{site.USER_BASE}/secrets'
-""" This is where your secrets are stored (in Docker or locally). """
+""" This is where your secrets are stored locally. """
 
 
 # ---------------------------------------------------------

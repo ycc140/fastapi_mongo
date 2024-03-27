@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-27 22:22:01
+     $Rev: 7
 """
 
 # BUILTIN modules
@@ -39,7 +39,7 @@ class HealthManager:
             status = await Engine.is_db_connected()
 
         except BaseException as why:
-            logger.critical(f'MongoDB: {why}')
+            logger.critical(f'MongoDB: {why.args[0]}')
             status = False
 
         return [HealthResourceModel(name='MongoDb', status=status)]
