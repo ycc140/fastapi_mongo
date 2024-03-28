@@ -6,14 +6,14 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2023-03-05 11:05:26
-     $Rev: 72
+    $Date: 2024-03-28 01:20:39
+     $Rev: 8
 """
 
 # Third party modules
 import pytest
-from httpx import AsyncClient
 from starlette.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
 
 # This is the same as using the @pytest.mark.anyio
 # on all test functions in the module
@@ -27,8 +27,10 @@ async def test_normal_health(test_app: TestClient):
 
     :param test_app: TestClient instance.
     """
+    transport = ASGITransport(app=test_app.app)
 
-    async with AsyncClient(app=test_app.app, base_url="http://test") as client:
+    async with AsyncClient(transport=transport,
+                           base_url="http://test") as client:
         response = await client.get("/health")
 
     assert response.status_code == 200
@@ -42,8 +44,10 @@ async def test_health_error(test_app: TestClient):
 
     :param test_app: TestClient instance.
     """
+    transport = ASGITransport(app=test_app.app)
 
-    async with AsyncClient(app=test_app.app, base_url="http://dummy") as client:
+    async with AsyncClient(transport=transport,
+                           base_url="http://dummy") as client:
         response = await client.get("/health")
 
     assert response.status_code == 500

@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-03-28 01:20:39
+     $Rev: 8
 """
 
 # Third party modules
@@ -35,7 +35,7 @@ AUTH = {'Content-Type': 'application/json',
 @pytest.mark.parametrize(
     "payload, status_code",
     [
-        [{}, 422],
+        [None, 422],
         [['printing'], 422],
         [{"name": "Hammer", "price": 2.39}, 422],
         [{"name": "Hammer", "price": 0, "count": 20, "category": "tools"}, 422],
