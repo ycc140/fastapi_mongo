@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-04-26 17:38:52
+     $Rev: 9
 """
 
 # BUILTIN modules
@@ -15,12 +15,12 @@ from uuid import UUID
 from typing import List
 
 # Third party modules
-from fastapi import Depends
 from fastapi.responses import Response
-from fastapi import HTTPException, APIRouter, status, Query
+from fastapi import HTTPException, APIRouter, status, Depends, Query
 
 # Local modules
-from . import crud_items as crud
+from .interface import ICrudRepository
+from .dependencies import get_repository_crud
 from ..security import validate_authentication
 from .documentation import (item_id_documentation,
                             get_query_documentation as get_query_doc,
@@ -42,10 +42,14 @@ ROUTER = APIRouter(prefix="/v1/items", tags=["Items"],
     status_code=status.HTTP_201_CREATED,
     responses={400: {"model": DbOperationFailedError}}
 )
-async def add_item(payload: ItemPayload) -> ItemModel:
+async def add_item(
+        payload: ItemPayload,
+        crud: ICrudRepository = Depends(get_repository_crud)
+) -> ItemModel:
     """  ***Add Item to api_db.items.***
 
     :param payload: A new item to be added.
+    :param crud: Item CRUD object with an active DB session.
     :return: Supplied item.
     """
     return await crud.create(payload)
@@ -57,9 +61,12 @@ async def add_item(payload: ItemPayload) -> ItemModel:
     "",
     response_model=List[ItemModel],
 )
-async def get_all_items() -> List[ItemModel]:
+async def get_all_items(
+        crud: ICrudRepository = Depends(get_repository_crud)
+) -> List[ItemModel]:
     """ ***Read all Items from api_db.items.***
 
+    :param crud: Item CRUD object with an active DB session.
     :return: All items in the database.
     """
     return await crud.read_all()
@@ -72,10 +79,14 @@ async def get_all_items() -> List[ItemModel]:
     response_model=ItemModel,
     responses={404: {"model": NotFoundError}},
 )
-async def query_item_by_id(item_id: UUID = item_id_documentation) -> ItemModel:
+async def query_item_by_id(
+        item_id: UUID = item_id_documentation,
+        crud: ICrudRepository = Depends(get_repository_crud)
+) -> ItemModel:
     """ ***Read Item for matching item_id from api_db.items.***
 
     :param item_id: Item identifier.
+    :param crud: Item CRUD object with an active DB session.
     :return: Found item.
     """
     response = await crud.read(item_id)
@@ -99,6 +110,7 @@ async def query_item_by_parameters(
         count: int = Query(**get_query_doc['count']),
         price: float = Query(**get_query_doc['price']),
         category: Category = Query(**get_query_doc['category']),
+        crud: ICrudRepository = Depends(get_repository_crud)
 ) -> ItemArgumentResponse:
     """ ***Read item(s) using URL query parameters.***
 
@@ -109,6 +121,7 @@ async def query_item_by_parameters(
     :param count: Possible count parameter.
     :param price: Possible price parameter.
     :param category: Possible category parameter.
+    :param crud: Item CRUD object with an active DB session.
     :return: Found item.
     """
     # Verify that at least one of the query parameters has a value since
@@ -138,6 +151,7 @@ async def update_item(
         name: str = Query(**put_query_doc['name']),
         count: int = Query(**put_query_doc['count']),
         price: float = Query(**put_query_doc['price']),
+        crud: ICrudRepository = Depends(get_repository_crud)
 ) -> ItemModel:
     """ ***Update Item for matching item_id in api_db.items.***
 
@@ -145,6 +159,7 @@ async def update_item(
     :param name: Possible name for the item.
     :param count: Possible count for the item.
     :param price: Possible price for the item.
+    :param crud: Item CRUD object with an active DB session.
     :return: Updated item.
     """
     # Verify that at least one of the query parameters has
@@ -183,10 +198,14 @@ async def update_item(
     responses={404: {"model": NotFoundError}},
     response_description='Item was successfully deleted'
 )
-async def delete_item(item_id: UUID = item_id_documentation):
+async def delete_item(
+        item_id: UUID = item_id_documentation,
+        crud: ICrudRepository = Depends(get_repository_crud)
+):
     """ ***Delete Item for matching item_id from api_db.items.***
 
     :param item_id: Item identifier.
+    :param crud: Item CRUD object with an active DB session.
     :return: No response content (custom for a deleted item).
     """
     response = await crud.delete(item_id)

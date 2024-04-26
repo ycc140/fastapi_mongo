@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-28 01:20:39
-     $Rev: 8
+    $Date: 2024-04-26 17:38:52
+     $Rev: 9
 """
 
 # Third party modules
@@ -17,7 +17,7 @@ from pymongo.results import DeleteResult
 
 # Local program modules
 from ..src.config.setup import config
-from ..src.api import crud_items as crud
+from ..src.api.item_crud import ItemCrud
 from ..src.schemas import Category, ItemModel
 
 # This is the same as using the @pytest.mark.anyio on all test functions in the module
@@ -54,12 +54,12 @@ async def test_create_item_payload_variants(test_app, monkeypatch,
 
     # ---------------------------------
 
-    async def mock_create(_):
+    async def mock_create(_, __):
         """ Monkeypatch """
         return {"category": "tools", "count": 20, "price": 12.35,
                 "name": "Wrench", "id": "dbb86c27-2eed-410d-881e-ad47487dd228"}
 
-    monkeypatch.setattr(crud, "create", mock_create)
+    monkeypatch.setattr(ItemCrud, "create", mock_create)
 
     # ---------------------------------
 
@@ -79,11 +79,11 @@ async def test_create_item_db_error(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_create(_):
+    async def mock_create(_, __):
         """ Monkeypatch """
         raise HTTPException(status_code=400, detail=request_response)
 
-    monkeypatch.setattr(crud, "create", mock_create)
+    monkeypatch.setattr(ItemCrud, "create", mock_create)
 
     # ---------------------------------
 
@@ -116,11 +116,11 @@ async def test_read_all_item_documents(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read_all():
+    async def mock_read_all(_):
         """ Monkeypatch """
         return test_data
 
-    monkeypatch.setattr(crud, "read_all", mock_read_all)
+    monkeypatch.setattr(ItemCrud, "read_all", mock_read_all)
 
     # ---------------------------------
 
@@ -141,11 +141,11 @@ async def test_read_item_document(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return test_data
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
@@ -166,17 +166,16 @@ async def test_read_item_index_key_error(test_app, monkeypatch):
          'loc': ['path', 'item_id'],
          'msg': 'Input should be a valid UUID, invalid character: expected an '
                 'optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `m` at 1',
-         'type': 'uuid_parsing',
-         'url': 'https://errors.pydantic.dev/2.6/v/uuid_parsing'}
+         'type': 'uuid_parsing'}
     ]
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return 0
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
@@ -194,11 +193,11 @@ async def test_read_item_unknown_error(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return 0
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
@@ -238,11 +237,11 @@ async def test_query_item_document(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_query(_):
+    async def mock_query(_, __):
         """ Monkeypatch """
         return test_request_payload
 
-    monkeypatch.setattr(crud, "query", mock_query)
+    monkeypatch.setattr(ItemCrud, "query", mock_query)
 
     # ---------------------------------
 
@@ -301,19 +300,19 @@ async def test_update_item_document(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return test_request_payload
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
-    async def mock_update(_):
+    async def mock_update(_, __):
         """ Monkeypatch """
         return test_response_payload
 
-    monkeypatch.setattr(crud, "update", mock_update)
+    monkeypatch.setattr(ItemCrud, "update", mock_update)
 
     # ---------------------------------
 
@@ -341,11 +340,11 @@ async def test_update_item_unknown_error(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return 0
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
@@ -367,19 +366,19 @@ async def test_update_item_failure(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_read(_):
+    async def mock_read(_, __):
         """ Monkeypatch """
         return test_request_payload
 
-    monkeypatch.setattr(crud, "read", mock_read)
+    monkeypatch.setattr(ItemCrud, "read", mock_read)
 
     # ---------------------------------
 
-    async def mock_update(_):
+    async def mock_update(_, __):
         """ Monkeypatch """
         return 0
 
-    monkeypatch.setattr(crud, "update", mock_update)
+    monkeypatch.setattr(ItemCrud, "update", mock_update)
 
     # ---------------------------------
 
@@ -395,11 +394,11 @@ async def test_delete_item_document(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_delete(_):
+    async def mock_delete(_, __):
         """ Monkeypatch """
         return DeleteResult({'n': 1}, {'ok': 1.0})
 
-    monkeypatch.setattr(crud, "delete", mock_delete)
+    monkeypatch.setattr(ItemCrud, "delete", mock_delete)
 
     # ---------------------------------
 
@@ -417,11 +416,11 @@ async def test_delete_item_unknown_error(test_app, monkeypatch):
 
     # ---------------------------------
 
-    async def mock_delete(_):
+    async def mock_delete(_, __):
         """ Monkeypatch """
         return DeleteResult({'n': 0}, {'ok': 1.0})
 
-    monkeypatch.setattr(crud, "delete", mock_delete)
+    monkeypatch.setattr(ItemCrud, "delete", mock_delete)
 
     # ---------------------------------
 

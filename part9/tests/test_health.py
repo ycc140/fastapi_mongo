@@ -6,8 +6,8 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-28 01:20:39
-     $Rev: 8
+    $Date: 2024-04-26 17:38:52
+     $Rev: 9
 """
 
 # Third party modules
@@ -30,7 +30,7 @@ async def test_normal_health(test_app: TestClient):
     transport = ASGITransport(app=test_app.app)
 
     async with AsyncClient(transport=transport,
-                           base_url="http://test") as client:
+                           base_url="http://localhost") as client:
         response = await client.get("/health")
 
     assert response.status_code == 200

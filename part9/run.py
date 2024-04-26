@@ -6,13 +6,12 @@ Copyright: Wilde Consulting
 VERSION INFO::
     $Repo: fastapi_mongo
   $Author: Anders Wiklund
-    $Date: 2024-03-27 05:38:56
-     $Rev: 1
+    $Date: 2024-04-26 17:38:52
+     $Rev: 9
 """
 
 # BUILTIN modules
 import argparse
-from contextlib import suppress
 
 # Third party modules
 import uvicorn
@@ -38,5 +37,4 @@ if __name__ == '__main__':
     if args.reload:
         uv_config |= {'reload': True}
 
-    with suppress(KeyboardInterrupt):
-        uvicorn.run(**uv_config)
+    uvicorn.run(**uv_config)
